@@ -1,0 +1,541 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Loopwright Lead Fit Board</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=Public+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: sales console. Summary strip, then demand chart + price list side by side, then the filterable lead grid with a detail panel. */
+:root{
+  --bg:#f6f7f9; --panel:#ffffff; --panel2:#eef1f5; --line:#dde2ea;
+  --ink:#0f1722; --ink2:#4a5566; --mute:#7a8597;
+  --accent:#ff5b1f;
+  --need-h:#184f95; --need-h-ink:#ffffff;
+  --need-m:#86b6ef; --need-m-ink:#0b1f3a;
+  --need-l:#eef1f5; --need-l-ink:#7a8597;
+  --good:#0ca30c; --warn:#b77a00;
+  --f-display:'Bricolage Grotesque',ui-sans-serif,system-ui,sans-serif;
+  --f-body:'Public Sans',ui-sans-serif,system-ui,sans-serif;
+  --f-mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0f1218; --panel:#161b23; --panel2:#1d232d; --line:#2a313d;
+  --ink:#eef2f7; --ink2:#b5bfcd; --mute:#8590a2;
+  --accent:#ff6a33;
+  --need-h:#86b6ef; --need-h-ink:#0b1a2e;
+  --need-m:#256abf; --need-m-ink:#ffffff;
+  --need-l:#1d232d; --need-l-ink:#8590a2;
+  --good:#3fc76a; --warn:#e3a72f;
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0f1218; --panel:#161b23; --panel2:#1d232d; --line:#2a313d;
+  --ink:#eef2f7; --ink2:#b5bfcd; --mute:#8590a2;
+  --accent:#ff6a33;
+  --need-h:#86b6ef; --need-h-ink:#0b1a2e;
+  --need-m:#256abf; --need-m-ink:#ffffff;
+  --need-l:#1d232d; --need-l-ink:#8590a2;
+  --good:#3fc76a; --warn:#e3a72f;
+  color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font:15px/1.5 var(--f-body);margin:0}
+.wrap{max-width:1240px;margin:0 auto;padding-inline:20px;padding-block:28px 56px;display:grid;gap:22px}
+h1,h2,h3{font-family:var(--f-display);margin:0;letter-spacing:-.01em;text-wrap:balance}
+h1{font-size:30px;line-height:1.1}
+h2{font-size:19px}
+.eyebrow{font:500 11px var(--f-mono);letter-spacing:.12em;text-transform:uppercase;color:var(--mute)}
+.eyebrow b{color:var(--accent);font-weight:500}
+.mono{font-family:var(--f-mono)}
+.num{font-variant-numeric:tabular-nums}
+header{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:end;gap:16px}
+header p{margin:6px 0 0;color:var(--ink2);max-width:640px}
+.toggle{display:flex;align-items:center;gap:10px;font-size:14px;color:var(--ink2);background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:7px 14px;cursor:pointer}
+.toggle input{accent-color:var(--accent);width:16px;height:16px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px;min-width:0}
+.panel-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+.panel-head p{margin:0;color:var(--mute);font-size:13px}
+
+/* summary */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.stat{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+.stat .k{font-size:12.5px;color:var(--mute)}
+.stat .v{font:600 26px var(--f-display);margin-top:4px}
+.stat .s{font-size:12.5px;color:var(--ink2)}
+
+.two{display:grid;grid-template-columns:1.15fr 1fr;gap:22px}
+
+/* demand chart */
+.chart-row{display:grid;grid-template-columns:150px 1fr 34px;align-items:center;gap:12px;padding:6px 0}
+.chart-row .lab{font-size:13.5px;font-weight:500;line-height:1.25}
+.bar{display:flex;gap:2px;height:22px}
+.seg{border-radius:4px;position:relative;cursor:default;min-width:3px}
+.seg.h{background:var(--need-h)} .seg.m{background:var(--need-m)} .seg.l{background:var(--need-l);outline:1px solid var(--line);outline-offset:-1px}
+.seg:hover,.seg:focus-visible{filter:brightness(1.12);outline:2px solid var(--ink);outline-offset:1px}
+.chart-row .tot{font:500 13px var(--f-mono);color:var(--ink2);text-align:right}
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:12.5px;color:var(--ink2);margin-top:10px}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:-2px;margin-right:6px}
+.legend .h{background:var(--need-h)} .legend .m{background:var(--need-m)} .legend .l{background:var(--need-l);outline:1px solid var(--line)}
+.tip{position:fixed;pointer-events:none;background:var(--ink);color:var(--bg);font-size:12.5px;padding:7px 10px;border-radius:8px;z-index:30;max-width:240px;line-height:1.4}
+
+/* price list */
+.prices{display:grid;gap:8px}
+.price{display:grid;grid-template-columns:1fr auto;gap:2px 12px;padding:10px 12px;border-radius:10px;background:var(--panel2)}
+.price b{font-size:14px}
+.price .amt{font:500 13.5px var(--f-mono);text-align:right;white-space:nowrap}
+.price .d{font-size:12.5px;color:var(--ink2)}
+.price .setup{font:400 12px var(--f-mono);color:var(--mute);text-align:right;white-space:nowrap}
+.tiers{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
+.tier{border:1px solid var(--line);border-radius:10px;padding:9px 10px;font-size:12.5px;color:var(--ink2)}
+.tier b{display:block;color:var(--ink);font-size:13px}
+
+/* filters */
+.filters{display:flex;flex-wrap:wrap;gap:10px;align-items:end;margin-bottom:14px}
+.filters label{display:grid;gap:4px;font-size:12px;color:var(--mute)}
+.filters select,.filters input{font:inherit;font-size:14px;color:var(--ink);background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:7px 10px;min-width:0}
+.filters input{width:180px}
+.filters select:focus-visible,.filters input:focus-visible,button:focus-visible,tr:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.count{margin-left:auto;font-size:13px;color:var(--mute)}
+
+/* grid */
+.scroll{overflow-x:auto;border-radius:10px;border:1px solid var(--line)}
+table{border-collapse:collapse;width:100%;min-width:980px;font-size:13.5px}
+th,td{padding:8px 8px;text-align:left;border-bottom:1px solid var(--line);vertical-align:middle}
+thead th{background:var(--panel2);font-size:11.5px;font-weight:600;color:var(--ink2);position:sticky;top:0;white-space:nowrap}
+thead th button{all:unset;cursor:pointer}
+thead th button:hover{color:var(--ink)}
+thead th.svc{text-align:center;width:66px;white-space:normal;line-height:1.2}
+tbody tr{cursor:pointer}
+tbody tr:hover{background:var(--panel2)}
+tbody tr.sel{background:color-mix(in srgb,var(--accent) 9%,var(--panel))}
+.co b{display:block;font-weight:600}
+.co span{font-size:12px;color:var(--mute)}
+td.need{text-align:center;padding:5px 4px}
+.cell{display:inline-grid;place-items:center;width:52px;height:26px;border-radius:5px;font:600 11.5px var(--f-mono);letter-spacing:.02em}
+.cell.h{background:var(--need-h);color:var(--need-h-ink)}
+.cell.m{background:var(--need-m);color:var(--need-m-ink)}
+.cell.l{background:var(--need-l);color:var(--need-l-ink)}
+.cell.dim{opacity:.35}
+.budget{display:inline-flex;align-items:center;gap:6px;font-weight:600;white-space:nowrap}
+.budget .dollars{font-family:var(--f-mono);color:var(--accent);letter-spacing:-.05em}
+.budget .dollars s{color:var(--line);text-decoration:none}
+.money{font-family:var(--f-mono);white-space:nowrap}
+.money small{display:block;font-size:11px;color:var(--mute)}
+.status{display:inline-block;font-size:11.5px;font-weight:600;padding:3px 8px;border-radius:999px;background:var(--panel2);color:var(--ink2);white-space:nowrap}
+.status.emailed{background:color-mix(in srgb,var(--good) 16%,transparent);color:var(--ink)}
+.status.draft{background:color-mix(in srgb,var(--accent) 14%,transparent);color:var(--ink)}
+.empty{padding:28px;text-align:center;color:var(--mute)}
+
+/* detail */
+.detail{display:grid;grid-template-columns:1.2fr 1fr;gap:22px}
+.detail h3{font-size:22px}
+.detail .meta{color:var(--ink2);font-size:14px;margin-top:4px}
+.contact{display:grid;gap:6px;margin-top:14px;font-size:14px}
+.contact div{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.contact span:first-child{width:62px;color:var(--mute);font-size:12.5px}
+.contact .val{font-family:var(--f-mono);font-size:13.5px;user-select:all}
+.copy{font:inherit;font-size:12px;border:1px solid var(--line);background:var(--panel2);color:var(--ink2);border-radius:6px;padding:2px 8px;cursor:pointer}
+.why{margin-top:14px;font-size:14px;color:var(--ink2);max-width:60ch}
+.offer{background:var(--panel2);border-radius:12px;padding:16px;display:grid;gap:10px;align-content:start}
+.offer .big{font:700 28px var(--f-display)}
+.offer ul{margin:0;padding-left:18px;font-size:14px;color:var(--ink2)}
+.offer .fine{font-size:12.5px;color:var(--mute)}
+.note{font-size:12.5px;color:var(--mute);max-width:820px;margin:0}
+
+@media (max-width:900px){
+  .two,.detail{grid-template-columns:1fr}
+  .stats{grid-template-columns:repeat(2,1fr)}
+}
+@media (max-width:480px){
+  .wrap{padding-inline:16px}
+  .chart-row{grid-template-columns:104px 1fr 28px;gap:8px}
+  .tiers{grid-template-columns:1fr}
+  .filters input{width:100%}
+  .count{margin-left:0}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="wrap">
+  <header>
+    <div>
+      <div class="eyebrow"><b>●</b> Loopwright · Puget Sound pipeline</div>
+      <h1>Lead Fit Board</h1>
+      <p>How much each lead needs each service, what they can likely spend, and the offer to open with. Click a company for contact details and the pitch.</p>
+    </div>
+    <label class="toggle" for="founding"><input type="checkbox" id="founding"> Show founding price (30% off)</label>
+  </header>
+
+  <section class="stats" id="stats" aria-label="Pipeline summary"></section>
+
+  <div class="two">
+    <section class="panel" aria-labelledby="demand-h">
+      <div class="panel-head">
+        <h2 id="demand-h">Demand by service</h2>
+        <p>Number of leads at each need level</p>
+      </div>
+      <div id="chart"></div>
+      <div class="legend" aria-hidden="true"><span><i class="h"></i>High need</span><span><i class="m"></i>Medium need</span><span><i class="l"></i>Low need</span></div>
+    </section>
+
+    <section class="panel" aria-labelledby="price-h">
+      <div class="panel-head">
+        <h2 id="price-h">Price list</h2>
+        <p id="price-note">List prices per month</p>
+      </div>
+      <div class="prices" id="prices"></div>
+      <div class="tiers" id="tiers"></div>
+    </section>
+  </div>
+
+  <section class="panel" aria-labelledby="grid-h">
+    <div class="panel-head">
+      <h2 id="grid-h">Leads</h2>
+      <p>Sorted by fit score: High need = 3, Medium = 2, Low = 1, plus budget weight</p>
+    </div>
+    <div class="filters">
+      <label for="f-svc">Service<select id="f-svc"></select></label>
+      <label for="f-need">Need level<select id="f-need"><option value="">Any</option><option value="3">High only</option><option value="2">Medium or higher</option></select></label>
+      <label for="f-budget">Budget<select id="f-budget"><option value="">Any</option><option value="H">High</option><option value="M">Medium</option><option value="L">Low</option></select></label>
+      <label for="f-ind">Industry<select id="f-ind"></select></label>
+      <label for="f-q">Search<input id="f-q" type="search" placeholder="Company or city"></label>
+      <span class="count" id="count"></span>
+    </div>
+    <div class="scroll">
+      <table>
+        <thead><tr id="thead"></tr></thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="panel" id="detail" aria-live="polite"></section>
+
+  <p class="note">All need levels, budget tiers and prices are Loopwright's estimates, based on each company's industry, size and public web presence (for example, no website found in search). They are not figures from the companies. Confirm them on the audit call. Prices are suggested list prices; set your own before quoting. Leads marked "Website not checked yet" come from online directories; their website need is set to Medium until someone checks their site, and their phone numbers and addresses may be out of date.</p>
+</div>
+
+<div class="tip" id="tip" hidden></div>
+
+<script>
+const SERVICES=[
+  {k:'phone',name:'AI phone receptionist',short:'Phone bot',lo:350,hi:900,setup:750,d:'Answers every call 24/7, books appointments, takes messages, routes urgent calls.'},
+  {k:'web',name:'Website build or refresh',short:'Website',lo:75,hi:75,setupLo:2500,setupHi:6000,d:'Fast, mobile site with booking and lead capture. One-time build plus monthly care.'},
+  {k:'leads',name:'Lead response & follow-up',short:'Lead follow-up',lo:300,hi:700,d:'Replies to every inquiry in minutes, logs it in the CRM, follows up on day 2 and 7.'},
+  {k:'sched',name:'Scheduling & reminders',short:'Scheduling',lo:200,hi:500,d:'Online booking, confirmations, no-show reminders, rescheduling.'},
+  {k:'docs',name:'Inbox & document intake',short:'Doc intake',lo:400,hi:1000,d:'Reads emails, forms and documents, enters the data, chases what is missing.'},
+  {k:'reviews',name:'Reviews & reputation',short:'Reviews',lo:150,hi:300,d:'Asks happy customers for reviews and drafts replies to new ones.'}
+];
+const TIERS={
+  L:{name:'Low',lo:200,hi:600,d:'Solo or very small office, tight margins'},
+  M:{name:'Medium',lo:600,hi:1500,d:'Established small office, 3–15 staff'},
+  H:{name:'High',lo:1500,hi:3500,d:'Larger or multi-office, high-value clients'}
+};
+const IND={pm:'Property management',ins:'Insurance agency',law:'Law (estate planning)',acc:'Accounting',re:'Real estate',plb:'Plumbing / HVAC',den:'Dental',
+  elec:'Electrical',roof:'Roofing & exterior',reno:'Remodeling & painting',yard:'Landscaping & tree',clean:'Cleaning',move:'Moving',auto:'Auto repair',pest:'Pest control',shop:'Appliance & flooring stores',pet:'Pet care',food:'Catering',well:'Chiropractic'};
+// need order: phone, web, leads, sched, docs, reviews (3 High, 2 Medium, 1 Low)
+const BASE={pm:[3,1,2,3,2,2],ins:[3,2,3,1,3,1],law:[2,2,2,3,3,1],acc:[2,2,1,2,3,1],re:[2,1,3,3,2,2],plb:[3,2,3,3,1,3],den:[3,1,1,3,2,3],
+  elec:[3,2,3,3,1,3],roof:[3,2,3,2,1,3],reno:[2,2,3,2,2,3],yard:[3,2,3,3,1,3],clean:[2,2,3,3,1,3],move:[3,2,3,2,2,3],auto:[3,2,2,3,1,3],pest:[3,2,3,3,1,2],shop:[2,2,2,2,2,2],pet:[2,2,2,3,2,2],food:[2,2,3,2,2,2],well:[3,2,1,3,2,3]};
+// w = website need override (3 = no site found, 2 = template/unconfirmed, 1 = good site); p = phone override
+const RAW=[
+ ['Pilkey-Hopping & Ekberg Insurance','ins','Tacoma','','(253) 627-2175','info@phe-insurance.com','H','Emailed',{w:2},'Two Tacoma offices and a chamber member. The site runs on a generic insurance-site template.'],
+ ['Zeman Law Group','law','Bellevue','Laura Zeman','(425) 947-5405','lzeman@zemanlawgroup.com','M','Emailed',{},'Boutique estate-planning firm: wills, trusts, probate, prenups. Intake and document chasing are the big time sinks.'],
+ ['Nickols Realty','re','Bellevue','Eric Nickols','(425) 641-4872','nickolsrealty@nickolsrealtyllc.com','M','Emailed',{},'Third-generation independent brokerage that sells on "high-touch" service. Fast lead replies protect that brand.'],
+ ['Real Property Associates','pm','Seattle','Gordon Stephenson / Jay Young','(206) 523-0300','','H','New',{w:1},'Manages 4,500+ units across Seattle, Bellevue, Everett and Tacoma. Huge tenant call and request volume.'],
+ ['Walls Property Management','pm','Seattle (Ballard)','','(206) 784-9780','leasing@wallspropertymanagement.com','M','Draft ready',{w:1},'Family-owned Ballard apartment manager on AppFolio. Leasing inquiries and showings are the pain.'],
+ ['Spinnaker Property Management','pm','Tacoma','','(253) 830-5160','leasing@spinnakerpm.com','M','Draft ready',{w:1},'Houses, apartments and condos across Tacoma on AppFolio.'],
+ ['Guide Property Services','pm','Seattle','Sara Brown','(800) 815-9670','','H','New',{w:2},'Value-add manager across Washington and Idaho with two Seattle offices.'],
+ ['Phillips Real Estate Services','pm','Seattle','Ondrea Zink','(206) 622-8600','','H','New',{w:1},'Full-service firm since 1977 with an apartment operations team.'],
+ ['Adams Insurance Agency','ins','Seattle (Wedgwood)','','(206) 523-8660','','M','New',{w:2},'Independent since 1949, one office. The site runs on a generic insurance-site template.'],
+ ['Dan Marek Insurance','ins','Tacoma','Dan Marek','(253) 537-4000','','M','New',{w:2},'Independent agency on Pacific Ave S. No website confirmed in search.'],
+ ['Ozanich Insurance Brokers','ins','Tacoma','','(253) 564-2622','','L','New',{w:3},'Small personal-lines broker. No website found in search.'],
+ ['Alliance West Insurance','ins','University Place','Piilani Benz (CEO)','(253) 314-5371','','M','New',{w:2},'Chamber member with a COO and agents on staff.'],
+ ['Brave Northwest Insurance','ins','Tacoma (remote)','','(253) 224-5405','','L','New',{w:3,p:3},'Remote agency. No website found; a phone bot covers calls while agents are out.'],
+ ['Legacy Estate Planning','law','Bellevue','','(425) 455-6788','','M','New',{w:3},'Boutique estate-planning firm. No website found in search.'],
+ ['Davies Law Offices','law','Bellevue','Jim Davies / Sabrina Go','(425) 440-3494','','M','New',{w:1},'Estate, trust and tax planning with two attorneys.'],
+ ['Natasha Black Law','law','Bellevue','Natasha Black','(425) 998-8114','','M','New',{},'Solo estate-planning attorney, 21 years licensed. The owner does her own intake.'],
+ ['Millward Accounting & Bookkeeping','acc','Seattle (Ballard)','','(206) 739-9887','','L','New',{w:1},'Small bookkeeping firm.'],
+ ['O&K Bookkeeping and Tax','acc','Seattle','','(206) 440-5846','','L','New',{w:2},'Bookkeeping, payroll and tax. Listings disagree on address and website.'],
+ ['Aldaris CPA Group','acc','Seattle (West Seattle)','','(206) 588-6941','','M','New',{w:1},'CPA group with tax and advisory work.'],
+ ['HAAS CPA, PLLC','acc','Seattle','Kelly','(206) 718-7291','kelly@haascpas.com','M','Draft ready',{w:1},'CPA firm on Lakeside Ave. Tax-season document chasing is the hook.'],
+ ['Advanced Accounting','acc','Seattle (Rainier Valley)','','(206) 721-9850','','L','New',{w:3},'Small accounting office. No website found in search.'],
+ ['Knockout Plumbing & Mechanical','plb','Seattle','','(206) 858-2211','','M','New',{w:3},'Family-owned since 2006: remodels, water heaters, sewer. No website found; missed calls are lost jobs.'],
+ ['Fremont Family Dentistry','den','Seattle (Fremont)','Dr. Mahvash Khajavi-Harvey','(206) 267-7300','','M','New',{w:1},'Family practice since 2003. Front-desk tasks only (no patient records).'],
+ ['Smile Ballard','den','Seattle (Ballard)','Dr. Curalli / Dr. Maggass','(206) 781-9204','','M','New',{w:1},'Cosmetic and general practice. Front-desk tasks only.'],
+ ['Double Z, Inc.','pm','Tacoma / Pierce Co.','','(253) 531-9431','','M','New',{w:1},'Family-run, 20+ years, single-family homes and small multifamily across two counties.'],
+ ['Parkwood Property Management','pm','Tacoma','','','','L','New',{w:3},'Pierce County manager since 1988. No website or phone found.'],
+ ['Harbor Insurance Services','ins','Seattle (West Seattle)','Julie & Tim Reagan','','','L','New',{w:3},'Family-owned personal-lines agency since 1979. No website or phone found.'],
+ ['NextHome Prolific','re','Seattle','Kenny Pleasant','','','L','New',{w:1},'Franchise brokerage. HQ supplies the website and some tools, so the budget is smaller.'],
+ ['Amundson & Co. Inc. P.S.','acc','Everett','','','','L','New',{w:3},'Everett accounting firm. No website or phone found.'],
+ ['Fremont Dental','den','Seattle (Fremont)','Dr. Lisa Park / Dr. Simone Kim','(206) 675-0366','','M','New',{w:1},'Two-dentist family practice. Front-desk tasks only.'],
+ ['Gene Johnson Plumbing & Heating','plb','Seattle','','(360) 218-7611','','H','New',{w:1,p:2},'Multi-location since 1976 (acquired Fox Plumbing). Likely already has a call team, so phone need is medium. A directory also lists (206) 792-7495 at 10011 Greenwood Ave N.'],
+ ["Best Plumbing", "plb", "Seattle", "", "(206) 633-1700", "", "M", "New", {}, "Plumbing. Family-oriented, 55+ yrs, residential + commercial. Website not checked yet."],
+ ["Salish Plumbing Co", "plb", "Shoreline", "", "(206) 867-0624", "", "M", "New", {}, "Plumbing (commercial). Serves Ballard/North Seattle businesses. Website not checked yet."],
+ ["Pioneer Plumbing & Heating", "plb", "Seattle", "", "(206) 789-8029", "", "M", "New", {}, "3425 16th Ave W, Seattle. Plumbing & HVAC. Website not checked yet."],
+ ["Plunge It Sound LLC", "plb", "Seattle", "Casey Smith", "(425) 954-3088", "", "L", "New", {}, "Plumbing. Website not checked yet."],
+ ["Bee's Plumbing & Heating", "plb", "Seattle", "", "(206) 629-8217", "", "M", "New", {}, "2401 SW Alaska St, Seattle. Plumbing & HVAC. Also does handyman work. Website not checked yet."],
+ ["OutToday Plumbing, Heating & Electrical", "plb", "Seattle", "", "(206) 792-7663", "", "H", "New", {}, "1900 Airport Wy S #103, Seattle. Plumbing/HVAC/Electrical. Website not checked yet."],
+ ["Go Green Heating & Air Conditioning", "plb", "Seattle", "", "(206) 620-1600", "", "M", "New", {}, "3218 Eastlake Ave E, Seattle. HVAC. Website not checked yet."],
+ ["Evergreen Home Heating and Energy", "plb", "Seattle", "", "(206) 565-1455", "", "M", "New", {}, "727 S Kenyon St, Seattle. HVAC / duct cleaning. Website not checked yet."],
+ ["CM Heating", "plb", "Lynnwood", "", "(425) 600-7767", "", "M", "New", {}, "5017 196th St SW Suite 208, Lynnwood. HVAC/Plumbing/Electrical. 24/7 urgent repairs. Website not checked yet."],
+ ["Greenwood Heating & Home Services", "plb", "Tukwila", "", "(206) 207-4734", "", "M", "New", {}, "14027 Interurban Ave S, Tukwila. HVAC. Website not checked yet."],
+ ["Green House Plumbing and Heating", "plb", "Bellevue", "", "(425) 999-9417", "", "M", "New", {}, "13330 SE 30th St, Bellevue. Plumbing & HVAC. Verify address (listing ZIP looks wrong). Website not checked yet."],
+ ["Prime HVAC LLC", "plb", "Tacoma", "", "(253) 287-5787", "", "M", "New", {}, "920 E 49th St, Tacoma. HVAC. Family-run, serves Seattle metro. Website not checked yet."],
+ ["Allred Heating, Cooling & Electric", "plb", "Seattle", "", "", "", "M", "New", {}, "HVAC & Electrical. Family business (twin brothers), est. 2011; a review mentions slow follow-up. Site: trustallred.com. Website not checked yet."],
+ ["Zip Mechanical", "plb", "Seattle", "", "", "", "L", "New", {}, "HVAC. Family-owned, 10+ yrs; find phone. Website not checked yet."],
+ ["Economy Wiring Company Inc.", "elec", "Seattle", "", "(206) 830-8063", "", "M", "New", {}, "633 SW 148th St, Seattle. Electrical. Family owned since 1953. Website not checked yet."],
+ ["Standard Electric Co", "elec", "Seattle", "Steve Kirkpatrick", "(206) 589-7296", "", "L", "New", {}, "2233 15th Ave W, Seattle. Electrical. Older homes. Website not checked yet."],
+ ["Brady Electric", "elec", "Seattle", "", "(206) 218-3724", "", "L", "New", {}, "4412 California Ave SW, Seattle. Electrical. Locally owned, 23+ yrs. Website not checked yet."],
+ ["Larry's Electric", "elec", "Seattle", "", "(206) 227-3237", "", "H", "New", {}, "1500 W Bertona St, Seattle. Electrical. 3 local offices. Website not checked yet."],
+ ["Exact Electric", "elec", "Seattle", "", "(206) 434-6915", "", "L", "New", {}, "11300 25th Ave NE, Seattle. Electrical. Independent, locally owned. Website not checked yet."],
+ ["JCS Electrical", "elec", "Woodinville", "", "(425) 552-1502", "", "M", "New", {}, "13345 NE Village Square Dr, Woodinville. Electrical. Website not checked yet."],
+ ["Dadz Electric", "plb", "Lynnwood", "", "(425) 414-3380", "", "M", "New", {}, "6428 165th Pl SW, Lynnwood. Electrical/HVAC/Solar. Family-owned, 30+ yrs. Website not checked yet."],
+ ["Finesse Auto Service & Repair", "auto", "Seattle", "", "", "", "M", "New", {}, "5820 Corson Ave S, Seattle. Auto repair. Family-owned; 4.8 stars (186 reviews); find phone. Website not checked yet."],
+ ["Pacific Rim Automotive", "auto", "Seattle (Wallingford)", "", "(206) 632-1175", "", "M", "New", {}, "Auto repair. Import specialist since 1995. Website not checked yet."],
+ ["Salmon's Service Centers", "auto", "Seattle", "", "(206) 453-1276", "", "H", "New", {}, "355 NW 85th St, Seattle. Auto repair. 3 Seattle locations. Site: salmonsservice.com. Website not checked yet."],
+ ["Lake City Autoworks", "auto", "Seattle", "", "", "", "M", "New", {}, "Auto repair. Family-owned since 2001; find phone. Website not checked yet."],
+ ["Foreign Car Workshop", "auto", "Seattle", "Ryan Corwin", "", "", "M", "New", {}, "Auto repair. Family-owned since 1970; owner Ryan Corwin; find phone. Website not checked yet."],
+ ["West Seattle Autoworks", "auto", "Seattle", "Chris Christensen", "", "", "M", "New", {}, "Auto repair. Find phone. Site: westseattleautoworks.kukui.com. Website not checked yet."],
+ ["Cleaning Services Seattle", "clean", "Seattle", "", "(206) 208-6962", "", "L", "New", {}, "1455 NW Leary Way, Seattle. House cleaning. Locally owned, recurring cleans. Website not checked yet."],
+ ["Emerald City Cleaning", "clean", "Seattle", "", "(206) 529-4700", "", "M", "New", {}, "1408 Elliott Ave W, Seattle. House/commercial cleaning. Website not checked yet."],
+ ["Maid Your Day Seattle", "clean", "Bothell", "", "(425) 273-8473", "", "L", "New", {}, "17225 5th Ave W, Bothell. House cleaning. Website not checked yet."],
+ ["Lilas Cleaning Services", "clean", "Federal Way", "", "(360) 888-2746", "", "L", "New", {}, "Cleaning. Website not checked yet."],
+ ["Fresh Cleaning Seattle LLC", "clean", "Lynnwood", "", "", "", "L", "New", {}, "Cleaning. Mother-daughter business; on Thumbtack; find phone. Website not checked yet."],
+ ["Ballinger Landscaping", "yard", "Shoreline", "", "(206) 601-4649", "", "M", "New", {}, "20234 20th Pl NE, Shoreline. Landscaping. Residential, HOA, commercial. Site: ballingerlandscaping.com. Website not checked yet."],
+ ["Rodriguez Irrigation", "yard", "Issaquah", "", "(425) 765-6231", "", "L", "New", {}, "380 Mt Olympus Dr SW, Issaquah. Landscaping/irrigation. Website not checked yet."],
+ ["Fresh Roots Landscaping", "yard", "Renton", "", "(206) 790-6135", "", "L", "New", {}, "PO Box 2575, Renton. Landscaping/tree. Website not checked yet."],
+ ["Eco Movers Moving & Storage", "move", "Seattle", "", "(206) 207-5268", "", "M", "New", {}, "1200 W Nickerson St, Seattle. Moving. Second number listed: (206) 759-7941. Website not checked yet."],
+ ["Hansen Bros. Moving & Storage", "move", "Seattle", "", "(206) 365-4454", "admin@hansenbros.com", "H", "New", {}, "10750 Aurora Ave N, Seattle. Moving. Website not checked yet."],
+ ["Kangaroo Movers", "move", "Seattle", "", "(206) 535-2424", "", "M", "New", {}, "12303 Lake City Way NE, Seattle. Moving. Website not checked yet."],
+ ["Pure Moving Company", "move", "Seattle", "", "(206) 278-8283", "", "M", "New", {}, "1511 3rd Ave #310, Seattle. Moving. Website not checked yet."],
+ ["Seattle Moves & More", "move", "Seattle", "", "(206) 972-6683", "", "M", "New", {}, "4601 Shilshole Ave NW, Seattle. Moving. Website not checked yet."],
+ ["Lake Union Movers", "move", "Seattle", "", "(206) 257-5096", "lakeunionmovers@gmail.com", "L", "New", {}, "5608 17th Ave NW #233, Seattle. Moving. Website not checked yet."],
+ ["CMS Relocation & Logistics", "move", "Kent", "", "(800) 284-6683", "", "H", "New", {}, "21620 S 88th Pl, Kent. Moving. Website not checked yet."],
+ ["Rainier Roofing Company", "roof", "Seattle", "", "(206) 347-8191", "", "M", "New", {}, "2104 S Plum St, Seattle. Roofing. Website not checked yet."],
+ ["Interlock Metal Roofing PNW", "roof", "Seattle", "", "(206) 589-8423", "", "M", "New", {}, "5608 17th Ave NW Suite 1574, Seattle. Roofing. Website not checked yet."],
+ ["Revolution Roofing", "roof", "Seattle", "", "(206) 438-3701", "", "M", "New", {}, "4640 Union Bay Pl NE, Seattle. Roofing. Website not checked yet."],
+ ["Tekline Roofing", "roof", "Tukwila", "", "(206) 246-7663", "", "M", "New", {}, "635 Industry Dr, Tukwila. Roofing. Website not checked yet."],
+ ["Valentine Roofing", "roof", "Tukwila", "", "(206) 558-0611", "", "H", "New", {}, "400 Industry Dr, Tukwila. Roofing. Website not checked yet."],
+ ["Rock Roofing", "roof", "Bothell", "", "(425) 486-8683", "", "M", "New", {}, "17210 Bothell Way NE Suite A, Bothell. Roofing. Website not checked yet."],
+ ["Davison Roofing", "roof", "Mill Creek", "", "(425) 344-6151", "", "H", "New", {}, "13300 Bothell Everett Hwy, Mill Creek. Roofing. Website not checked yet."],
+ ["Larry Haight's Residential Roofing", "roof", "Redmond", "", "(425) 529-5805", "", "M", "New", {}, "15203 NE 95th St, Redmond. Roofing. Website not checked yet."],
+ ["True Blue Roofing & Siding", "roof", "Maple Valley", "", "(253) 655-9898", "", "M", "New", {}, "18407 Renton-Maple Valley Rd, Maple Valley. Roofing. Website not checked yet."],
+ ["SoundCraft Home Services", "reno", "Seattle", "", "(206) 940-2327", "", "L", "New", {}, "Handyman. Verify phone (listing text was jumbled). Website not checked yet."],
+ ["Stop Bugging Me Pest Control", "pest", "Seattle", "", "(206) 749-2847", "", "M", "New", {}, "2930 4th Ave S #100, Seattle. Pest control. Website not checked yet."],
+ ["Parker Eco Pest Control", "pest", "Seattle", "", "(800) 326-1698", "", "M", "New", {}, "7307 Linden Ave N, Seattle. Pest control. Website not checked yet."],
+ ["EcoShield Pest Solutions", "pest", "Tukwila", "", "(206) 686-9960", "", "M", "New", {}, "617 Industry Dr, Tukwila. Pest control. Website not checked yet."],
+ ["United Pest Solutions", "pest", "Kenmore", "", "(888) 880-3374", "", "M", "New", {}, "6016 NE Bothell Way Suite E, Kenmore. Pest control. Website not checked yet."],
+ ["Sentinel Pest Control Renton", "pest", "Renton", "", "(253) 243-3025", "", "M", "New", {}, "707 S Grady Way Suite 600, Renton. Pest control. Website not checked yet."],
+ ["Sound Painting Solutions", "reno", "Seattle", "", "(206) 258-6676", "", "H", "New", {}, "5215 5th Ave S, Seattle. Painting. 4.9 stars (520 reviews). Website not checked yet."],
+ ["Phinney Ridge Painting", "reno", "Seattle", "", "(206) 371-1441", "", "L", "New", {}, "922 Leary Wy NW, Seattle. Painting. Website not checked yet."],
+ ["All Covered Painting & Property Services", "reno", "Seattle", "", "(206) 682-7110", "", "M", "New", {}, "9585 8th Ave S, Seattle. Painting. Website not checked yet."],
+ ["Refined Painting", "reno", "Seattle", "", "(206) 558-4345", "", "L", "New", {}, "7212 Linden Ave N, Seattle. Painting. Website not checked yet."],
+ ["American Classic Painters", "reno", "Issaquah", "", "(206) 848-8882", "", "M", "New", {}, "160 NW Gilman Blvd, Issaquah. Painting. Website not checked yet."],
+ ["Tenhulzen Painting & Construction", "reno", "Mill Creek", "", "(425) 785-5327", "", "H", "New", {}, "16900 9th Ave SE, Mill Creek. Painting. Website not checked yet."],
+ ["Amsberry's Painting", "reno", "Monroe", "", "(425) 475-2519", "", "M", "New", {}, "500 E Main St, Monroe. Painting. Website not checked yet."],
+ ["Tree133 Professional Arborists", "yard", "Seattle", "", "(206) 745-0473", "", "M", "New", {}, "9615 Stone Ave N, Seattle. Tree service. Website not checked yet."],
+ ["Seattle Tree Care", "yard", "Seattle", "", "(206) 789-0534", "", "M", "New", {}, "4035 23rd Ave W, Seattle. Tree service. Website not checked yet."],
+ ["Eastside Tree Works", "yard", "Carnation", "", "(206) 396-9998", "", "H", "New", {}, "32517 NE 77th St, Carnation. Tree service. 315 reviews. Website not checked yet."],
+ ["Arbor Magic Tree Services", "yard", "Kirkland", "", "(425) 827-8733", "", "M", "New", {}, "8512 122nd Ave NE Suite 317, Kirkland. Tree service. Website not checked yet."],
+ ["Fuzzy Wuzzy Rug Cleaning Company", "clean", "Seattle", "", "(206) 525-0058", "", "L", "New", {}, "4640 Union Bay Pl NE, Seattle. Rug/carpet cleaning. Website not checked yet."],
+ ["Power Pup Clean", "clean", "Seattle", "", "(206) 931-8758", "", "L", "New", {}, "Carpet/floor cleaning. Website not checked yet."],
+ ["Sno-King Quality Cleaning", "clean", "Edmonds", "", "(206) 594-4574", "", "M", "New", {}, "5030 208th St SW Suite B, Edmonds. Carpet/floor cleaning. Verify phone (listing shows two). Website not checked yet."],
+ ["Pure Clean", "clean", "Snohomish", "", "(206) 353-4155", "", "L", "New", {}, "141 Maple Ave, Snohomish. Carpet/floor cleaning. Website not checked yet."],
+ ["Gutter Seattle", "roof", "Seattle", "", "(206) 880-0408", "", "L", "New", {}, "4412 California Ave SW, Seattle. Gutters. Website not checked yet."],
+ ["Greater Seattle Gutters", "roof", "Woodinville", "", "(206) 453-6988", "", "M", "New", {}, "16110 Redmond-Woodinville Rd NE, Woodinville. Gutters. Website not checked yet."],
+ ["Elite Garage Door & Gate Repair", "roof", "Seattle", "", "(206) 934-1234", "", "M", "New", {}, "3625 36th Ave S, Seattle. Garage doors. Website not checked yet."],
+ ["Metropolitan Appliance", "shop", "Seattle", "", "(206) 623-8811", "", "H", "New", {}, "1749 1st Ave S, Seattle. Appliance sales & repair. Website not checked yet."],
+ ["Wiseman's Appliance", "shop", "Seattle", "", "(206) 937-7400", "", "M", "New", {}, "2619 California Ave SW, Seattle. Appliance sales & repair. Website not checked yet."],
+ ["National Appliance Liquidators", "shop", "Seattle", "", "(206) 829-8054", "", "M", "New", {}, "3414 4th Ave S, Seattle. Appliance sales. Website not checked yet."],
+ ["Appliance Distributors", "shop", "Tukwila", "", "(206) 244-6966", "", "M", "New", {}, "14639 Tukwila International Blvd, Tukwila. Appliance sales & repair. Website not checked yet."],
+ ["Arnold's Appliance", "shop", "Bellevue", "", "(425) 454-7929", "", "M", "New", {}, "14404 NE 20th St Suite 100, Bellevue. Appliance sales & repair. Website not checked yet."],
+ ["Frederick's Appliance Center", "shop", "Redmond", "", "(425) 885-0000", "", "M", "New", {}, "7509 159th Pl NE, Redmond. Appliance sales & repair. Website not checked yet."],
+ ["STS Construction Services", "reno", "Seattle", "", "(206) 439-6343", "", "M", "New", {}, "9049 20th Ave SW, Seattle. Remodeling. Website not checked yet."],
+ ["Gaspar's Construction", "reno", "Seattle", "", "(206) 324-8199", "", "M", "New", {}, "300 S Lucile St, Seattle. Remodeling. 4.6 stars (105 reviews). Website not checked yet."],
+ ["Better Builders", "reno", "Seattle", "", "(206) 588-2075", "", "M", "New", {}, "4800 California Ave SW, Seattle. Remodeling. Website not checked yet."],
+ ["Pius Kitchen Remodeler", "reno", "Seattle", "", "(206) 382-6638", "", "M", "New", {}, "1900 4th Ave S, Seattle. Remodeling. Website not checked yet."],
+ ["CRD Design Build", "reno", "Seattle", "", "(206) 782-6959", "", "M", "New", {}, "2707 NE Blakeley St, Seattle. Remodeling. Second address listed: 3929 Stone Way N. Website not checked yet."],
+ ["Schulte Design Build", "reno", "Seattle", "", "(206) 419-0876", "", "M", "New", {}, "1429 NW 51st St, Seattle. Remodeling. Website not checked yet."],
+ ["Emerald City Mosaic", "reno", "Seattle", "", "(206) 752-9500", "", "L", "New", {}, "Remodeling. Website not checked yet."],
+ ["Unique Home Construction", "reno", "Kirkland", "", "(206) 717-7314", "", "M", "New", {}, "1516 1st St, Kirkland. Remodeling. Website not checked yet."],
+ ["Kitchen and Bath Builders", "reno", "Federal Way", "", "(206) 276-1717", "", "M", "New", {}, "3325 SW 344th St, Federal Way. Remodeling. 5.0 stars (32 reviews). Website not checked yet."],
+ ["Keystone Kitchens", "reno", "Woodinville", "", "(425) 485-1281", "", "M", "New", {}, "19510 144th Ave NE Ste A7, Woodinville. Remodeling. Website not checked yet."],
+ ["Home Run Solutions", "reno", "Mill Creek", "", "(425) 320-4786", "", "M", "New", {}, "16000 Mill Creek Blvd #112, Mill Creek. Remodeling. Website not checked yet."],
+ ["Seattle Canine Club (South Lake Union)", "pet", "Seattle", "", "(206) 222-6667", "", "H", "New", {}, "411 Westlake Ave N, Seattle. Dog grooming/daycare. Site: seattlecanineclub.com. Website not checked yet."],
+ ["Seattle Canine Club (SoDo)", "pet", "Seattle", "", "(206) 957-9097", "", "H", "New", {}, "2751 4th Ave S, Seattle. Dog grooming/daycare. Same owner as SLU location. Site: seattlecanineclub.com. Website not checked yet."],
+ ["Bellevue Pet Spa", "pet", "Bellevue", "", "(425) 455-9600", "", "L", "New", {}, "1105 Bellevue Way NE a3, Bellevue. Dog grooming. Website not checked yet."],
+ ["A+ Tax & Accounting", "acc", "Seattle", "", "(206) 860-9000", "", "L", "New", {}, "913 S Jackson St Ste E, Seattle. Tax & accounting. Website not checked yet."],
+ ["Huddleston Tax CPAs (U-District)", "acc", "Seattle", "", "(425) 483-6600", "", "H", "New", {}, "4500 9th Ave NE Suite 300, Seattle. Tax & accounting. Site: huddlestontaxcpas.com. Website not checked yet."],
+ ["Wembo CPA", "acc", "Seattle", "", "(509) 516-2332", "", "L", "New", {}, "506 2nd Ave Suite 1400, Seattle. Tax & accounting. 509 area code, verify. Site: wembocpa.com. Website not checked yet."],
+ ["Ravishing Radish Catering", "food", "Seattle", "", "(206) 860-7449", "", "M", "New", {}, "1801 E Marion St, Seattle. Catering. Website not checked yet."],
+ ["Vogel's Carpet & Flooring", "shop", "Seattle", "", "(206) 203-8849", "", "M", "New", {}, "10560 Aurora Ave N, Seattle. Flooring. Website not checked yet."],
+ ["Great Floors", "shop", "Lynnwood", "", "(425) 771-1477", "", "M", "New", {}, "5501 196th Pl SW, Lynnwood. Flooring. Website not checked yet."],
+ ["Town & Country Fence", "roof", "Lynnwood", "", "(425) 678-9498", "", "M", "New", {}, "6410 212th St SW, Lynnwood. Fencing. Website not checked yet."],
+ ["PNW Unlimited Construction", "reno", "Burien", "", "(253) 886-4358", "", "M", "New", {}, "11012 Roseberg Ave S, Burien. General contractor. Website not checked yet."],
+ ["Cherry Creek Windows & Doors", "roof", "Seattle", "", "(206) 547-4162", "", "M", "New", {}, "2420 N 45th St, Seattle. Windows & doors. Website not checked yet."],
+ ["AA Window and Gutter Cleaning", "roof", "Kirkland", "", "(425) 821-3814", "deb@aawindowgutter.com", "M", "New", {}, "11020 120th Ave NE, Kirkland. Window/gutter/pressure washing. Website not checked yet."],
+ ["Dazzle Cleaning Company", "clean", "Seattle", "", "(206) 424-9909", "", "M", "New", {}, "5700 6th Ave S Suite 212, Seattle. House/commercial cleaning. Weekly, deep cleans, move-outs, janitorial. Website not checked yet."],
+ ["Kirkland Life Chiropractic", "well", "Kirkland", "Dr. Jeremy Heisler", "(425) 576-5433", "", "L", "New", {}, "13116 NE 70th Pl, Kirkland. Chiropractic/massage. Dr. Jeremy Heisler, 28+ yrs. Website not checked yet."],
+ ["Ranger Heating & Cooling", "plb", "Puyallup", "", "(253) 881-8379", "", "H", "New", {}, "11420 58th Ave E. HVAC. 4.9 stars (1,597 reviews), the biggest review base on the list; open until 7 PM. Already takes Google bookings, so pitch call overflow and lead follow-up. City inferred from address. Website not checked yet."],
+ ["Puyallup Heating & Air Conditioning", "plb", "Puyallup", "", "(253) 446-8240", "", "M", "New", {}, "130 15th St SE. HVAC incl. ductless heat pumps. 4.7 stars (484 reviews). Closes 4 PM, so after-hours calls go unanswered. Website not checked yet."],
+ ["Dicks Heating & A/C Inc", "plb", "Sumner", "", "(888) 531-9579", "", "M", "New", {}, "1516 45th St E. HVAC / furnace repair. 4.6 stars (291 reviews). Listed number is toll-free; find the local line. City inferred from address. Website not checked yet."],
+ ["Rainier Heating & Cooling", "plb", "Puyallup", "", "(253) 363-6912", "", "M", "New", {}, "11203 Benston Dr E Ste 110. HVAC (Daikin systems). 4.9 stars (347 reviews). City inferred from address. Website not checked yet."],
+ ["Serenity Air Heating & Air Conditioning", "plb", "Puyallup", "", "(253) 255-5682", "", "M", "New", {}, "3211 23rd St SW. HVAC. 4.9 stars (599 reviews). Closes 4:30 PM, so after-hours calls go unanswered. City inferred from address. Website not checked yet."],
+ ["AZ Heating & Air", "plb", "Sumner", "", "(253) 376-6489", "", "L", "New", {w:3}, "7208 Riverside Dr E. HVAC, onsite services. New listing with no reviews yet and no website on Google: strong fit for a website build and review requests. City inferred from address."],
+ ["Dr. Cool, Inc.", "plb", "Sumner", "", "(253) 863-5665", "", "L", "New", {}, "1723 Pease Ave. HVAC. 4.3 stars (41 reviews); listed as open 24 hours; already books online through Housecall Pro. Pitch reviews and lead follow-up. City inferred from address. Website not checked yet."],
+ ["WestCoast Heating & Air", "plb", "Puyallup", "", "(253) 845-5174", "", "M", "New", {}, "10211 128th St E Ste A. HVAC replacements. 5.0 stars (173 reviews). Already takes online bookings through 3C Connect. City inferred from address. Website not checked yet."]
+];
+const LEADS=RAW.map(([name,ind,city,contact,phone,email,budget,status,ov,why],i)=>{
+  const n=BASE[ind].slice(); if(ov.w)n[1]=ov.w; if(ov.p)n[0]=ov.p;
+  const need={}; SERVICES.forEach((s,j)=>need[s.k]=n[j]);
+  return {id:i,name,ind,city,contact,phone,email,budget,status,why,need};
+});
+
+const LVL={3:['h','High'],2:['m','Med'],1:['l','Low']};
+const BW={H:3,M:2,L:1};
+const fmt=n=>'$'+Math.round(n).toLocaleString('en-US');
+let founding=false;
+const disc=v=>founding?v*0.7:v;
+const mid=s=>(s.lo+s.hi)/2;
+
+function offer(l){
+  // full bundle = every High-need service at mid list price
+  const high=SERVICES.filter(s=>l.need[s.k]===3);
+  const full=high.reduce((a,s)=>a+mid(s),0);
+  const setup=high.reduce((a,s)=>a+(s.setupLo?(s.setupLo+s.setupHi)/2:(s.setup||0)),0);
+  // starter = High-need services in price-value order that fit under the budget tier's ceiling
+  const cap=TIERS[l.budget].hi;
+  const order=high.slice().sort((a,b)=>(b.k==='web')-(a.k==='web')||mid(b)-mid(a));
+  let starter=[],sum=0;
+  for(const s of order){ if(sum+mid(s)<=cap){starter.push(s);sum+=mid(s);} }
+  if(!starter.length&&order.length){starter=[order[order.length-1]];sum=mid(starter[0]);}
+  return {high,full,setup,starter,starterSum:sum};
+}
+function fit(l){return SERVICES.reduce((a,s)=>a+l.need[s.k],0)+BW[l.budget]*2;}
+
+/* summary */
+function renderStats(){
+  const all=LEADS.map(offer);
+  const pipe=LEADS.reduce((a,l,i)=>a+all[i].starterSum,0);
+  const highB=LEADS.filter(l=>l.budget==='H').length;
+  const top=SERVICES.map(s=>[s,LEADS.filter(l=>l.need[s.k]===3).length]).sort((a,b)=>b[1]-a[1])[0];
+  const emailable=LEADS.filter(l=>l.email).length;
+  document.getElementById('stats').innerHTML=[
+    ['Leads scored',LEADS.length,`${emailable} with a published email`],
+    ['Starter-offer pipeline',fmt(disc(pipe))+'/mo','if every lead took its starter offer'],
+    ['Most-needed service',top[0].short,`${top[1]} leads need it badly`],
+    ['High-budget leads',highB,'call these first']
+  ].map(([k,v,s])=>`<div class="stat"><div class="k">${k}</div><div class="v num">${v}</div><div class="s">${s}</div></div>`).join('');
+}
+
+/* demand chart */
+const tip=document.getElementById('tip');
+function renderChart(){
+  const total=LEADS.length;
+  document.getElementById('chart').innerHTML=SERVICES.map(s=>{
+    const c={3:0,2:0,1:0}; LEADS.forEach(l=>c[l.need[s.k]]++);
+    const seg=(lv)=>c[lv]?`<span class="seg ${LVL[lv][0]}" tabindex="0" style="flex:${c[lv]}" data-tip="${s.name}: ${c[lv]} of ${total} leads at ${LVL[lv][1]==='Med'?'Medium':LVL[lv][1]} need"></span>`:'';
+    return `<div class="chart-row"><span class="lab">${s.short}</span><div class="bar" role="img" aria-label="${s.name}: ${c[3]} high, ${c[2]} medium, ${c[1]} low">${seg(3)}${seg(2)}${seg(1)}</div><span class="tot" title="High-need leads">${c[3]}</span></div>`;
+  }).join('');
+}
+document.addEventListener('pointerover',e=>{const t=e.target.closest('[data-tip]');if(!t)return;tip.textContent=t.dataset.tip;tip.hidden=false;});
+document.addEventListener('pointermove',e=>{if(tip.hidden)return;const x=Math.min(e.clientX+14,innerWidth-250);tip.style.left=x+'px';tip.style.top=(e.clientY+14)+'px';});
+document.addEventListener('pointerout',e=>{if(e.target.closest('[data-tip]'))tip.hidden=true;});
+document.addEventListener('focusin',e=>{const t=e.target.closest('[data-tip]');if(!t){tip.hidden=true;return;}const r=t.getBoundingClientRect();tip.textContent=t.dataset.tip;tip.hidden=false;tip.style.left=Math.min(r.left,innerWidth-250)+'px';tip.style.top=(r.bottom+8)+'px';});
+
+/* price list */
+function renderPrices(){
+  document.getElementById('price-note').textContent=founding?'Founding prices (30% off list) per month':'List prices per month';
+  document.getElementById('prices').innerHTML=SERVICES.map(s=>{
+    const amt=s.k==='web'?`${fmt(disc(s.lo))}/mo care`:`${fmt(disc(s.lo))}–${fmt(disc(s.hi))}/mo`;
+    const setup=s.setupLo?`${fmt(disc(s.setupLo))}–${fmt(disc(s.setupHi))} build`:(s.setup?`${fmt(disc(s.setup))} setup`:'');
+    return `<div class="price"><b>${s.name}</b><span class="amt">${amt}</span><span class="d">${s.d}</span><span class="setup">${setup}</span></div>`;
+  }).join('');
+  document.getElementById('tiers').innerHTML=Object.entries(TIERS).reverse().map(([k,t])=>`<div class="tier"><b>${t.name} budget · ${fmt(t.lo)}–${fmt(t.hi)}/mo</b>${t.d}</div>`).join('');
+}
+
+/* filters + grid */
+const fSvc=document.getElementById('f-svc'),fNeed=document.getElementById('f-need'),fBud=document.getElementById('f-budget'),fInd=document.getElementById('f-ind'),fQ=document.getElementById('f-q');
+fSvc.innerHTML='<option value="">All services</option>'+SERVICES.map(s=>`<option value="${s.k}">${s.name}</option>`).join('');
+fInd.innerHTML='<option value="">All industries</option>'+Object.entries(IND).map(([k,v])=>`<option value="${k}">${v}</option>`).join('');
+let sortKey='fit',sortDir=-1,selected=null;
+const COLS=[['name','Company'],...SERVICES.map(s=>[s.k,s.short]),['budget','Budget'],['offer','Starter offer'],['status','Status']];
+function renderHead(){
+  document.getElementById('thead').innerHTML=COLS.map(([k,l])=>{
+    const isSvc=SERVICES.some(s=>s.k===k);
+    const arrow=sortKey===k?(sortDir<0?' ↓':' ↑'):'';
+    return `<th class="${isSvc?'svc':''}" scope="col"><button data-sort="${k}">${l}${arrow}</button></th>`;
+  }).join('');
+}
+document.getElementById('thead').addEventListener('click',e=>{const b=e.target.closest('[data-sort]');if(!b)return;const k=b.dataset.sort;if(sortKey===k)sortDir*=-1;else{sortKey=k;sortDir=k==='name'?1:-1;}renderGrid();});
+function value(l,k){
+  if(k==='fit')return fit(l); if(k==='name')return l.name; if(k==='budget')return BW[l.budget]*10+fit(l)/100;
+  if(k==='offer')return offer(l).starterSum; if(k==='status')return {Emailed:0,'Draft ready':1,New:2}[l.status];
+  return l.need[k]*10+BW[l.budget];
+}
+function filtered(){
+  const svc=fSvc.value,nd=+fNeed.value||0,b=fBud.value,ind=fInd.value,q=fQ.value.trim().toLowerCase();
+  return LEADS.filter(l=>{
+    if(b&&l.budget!==b)return false; if(ind&&l.ind!==ind)return false;
+    if(q&&!(l.name+' '+l.city).toLowerCase().includes(q))return false;
+    if(nd){ if(svc){if(l.need[svc]<nd)return false;} else if(!SERVICES.some(s=>l.need[s.k]>=nd))return false; }
+    return true;
+  });
+}
+function budgetCell(b){const n=BW[b];return `<span class="budget"><span class="dollars" aria-hidden="true">${'$'.repeat(n)}<s>${'$'.repeat(3-n)}</s></span>${TIERS[b].name}</span>`;}
+function statusCell(s){return `<span class="status ${s==='Emailed'?'emailed':s==='Draft ready'?'draft':''}">${s}</span>`;}
+function renderGrid(){
+  renderHead();
+  const svc=fSvc.value;
+  const rows=filtered().sort((a,b)=>{const va=value(a,sortKey),vb=value(b,sortKey);return (va>vb?1:va<vb?-1:0)*sortDir||fit(b)-fit(a);});
+  document.getElementById('count').textContent=`${rows.length} of ${LEADS.length} leads`;
+  document.getElementById('tbody').innerHTML=rows.length?rows.map(l=>{
+    const o=offer(l);
+    return `<tr tabindex="0" data-id="${l.id}" class="${selected===l.id?'sel':''}">
+      <td class="co"><b>${l.name}</b><span>${IND[l.ind]} · ${l.city}</span></td>
+      ${SERVICES.map(s=>{const [c,t]=LVL[l.need[s.k]];return `<td class="need"><span class="cell ${c} ${svc&&svc!==s.k?'dim':''}" title="${s.name}: ${t==='Med'?'Medium':t} need">${t}</span></td>`;}).join('')}
+      <td>${budgetCell(l.budget)}</td>
+      <td class="money num">${fmt(disc(o.starterSum))}/mo${o.starter.some(s=>s.k==='web')?` + ${fmt(disc(4250))} build`:''}<small>${o.starter.map(s=>s.short).join(' + ')||'n/a'}</small></td>
+      <td>${statusCell(l.status)}</td></tr>`;
+  }).join(''):`<tr><td class="empty" colspan="${COLS.length}">No leads match these filters. Clear a filter to see more.</td></tr>`;
+}
+[fSvc,fNeed,fBud,fInd].forEach(el=>el.addEventListener('change',renderGrid));
+fQ.addEventListener('input',renderGrid);
+const tbody=document.getElementById('tbody');
+tbody.addEventListener('click',e=>{const tr=e.target.closest('tr[data-id]');if(tr)select(+tr.dataset.id);});
+tbody.addEventListener('keydown',e=>{if(e.key!=='Enter'&&e.key!==' ')return;const tr=e.target.closest('tr[data-id]');if(tr){e.preventDefault();select(+tr.dataset.id);}});
+
+/* detail */
+function select(id){selected=id;renderGrid();renderDetail();document.getElementById('detail').scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'nearest'});}
+function line(label,v){return v?`<div><span>${label}</span><span class="val">${v}</span><button class="copy" data-copy="${v}">Copy</button></div>`:`<div><span>${label}</span><span style="color:var(--mute)">Not found, check their website</span></div>`;}
+function renderDetail(){
+  const l=LEADS.find(x=>x.id===selected)||LEADS.slice().sort((a,b)=>fit(b)-fit(a))[0];
+  const o=offer(l),t=TIERS[l.budget];
+  const needs=SERVICES.slice().sort((a,b)=>l.need[b.k]-l.need[a.k]);
+  const over=o.full>t.hi;
+  document.getElementById('detail').innerHTML=`<div class="detail">
+    <div>
+      <div class="eyebrow">${IND[l.ind]} · ${l.city}</div>
+      <h3>${l.name}</h3>
+      <div class="meta">${l.contact?'Decision-maker: '+l.contact+' · ':''}Budget ${t.name} (${fmt(t.lo)}–${fmt(t.hi)}/mo) · ${statusCell(l.status)}</div>
+      <div class="contact">${line('Phone',l.phone)}${line('Email',l.email)}</div>
+      <p class="why">${l.why}</p>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px">${needs.map(s=>{const [c,tx]=LVL[l.need[s.k]];return `<span class="cell ${c}" style="width:auto;padding:0 10px">${s.short}: ${tx==='Med'?'Medium':tx}</span>`;}).join('')}</div>
+    </div>
+    <div class="offer">
+      <div class="eyebrow">Open with</div>
+      <div class="big num">${fmt(disc(o.starterSum))}<span style="font-size:15px;font-weight:500">/mo</span></div>
+      <ul>${o.starter.map(s=>`<li><b>${s.name}</b>: ${fmt(disc(s.lo))}–${fmt(disc(s.hi))}/mo${s.setupLo?` + ${fmt(disc(s.setupLo))}–${fmt(disc(s.setupHi))} build`:s.setup?` + ${fmt(disc(s.setup))} setup`:''}</li>`).join('')}</ul>
+      <div class="fine">Full bundle of every High-need service: ${fmt(disc(o.full))}/mo plus about ${fmt(disc(o.setup))} in setup. ${over?'That is above their likely budget, so start with the offer above and add services once it proves out.':'That fits their likely budget, so pitch the full bundle.'} First automation is free for founding clients.</div>
+    </div>
+  </div>`;
+}
+document.getElementById('detail').addEventListener('click',e=>{
+  const b=e.target.closest('[data-copy]'); if(!b)return;
+  const done=()=>{b.textContent='Copied';setTimeout(()=>b.textContent='Copy',1500);};
+  try{navigator.clipboard.writeText(b.dataset.copy).then(done,()=>selectText(b));}catch(_){selectText(b);}
+});
+function selectText(b){const v=b.previousElementSibling;const r=document.createRange();r.selectNodeContents(v);const s=getSelection();s.removeAllRanges();s.addRange(r);b.textContent='Press Ctrl+C';}
+
+document.getElementById('founding').addEventListener('change',e=>{founding=e.target.checked;renderAll();});
+function renderAll(){renderStats();renderChart();renderPrices();renderGrid();renderDetail();}
+renderAll();
+</script>
+
+</body></html>
