@@ -139,6 +139,25 @@ td.need{text-align:center;padding:5px 4px}
 .offer .fine{font-size:12.5px;color:var(--mute)}
 .note{font-size:12.5px;color:var(--mute);max-width:820px;margin:0}
 
+/* contact form */
+.cform{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 16px;max-width:820px}
+.cform .field{display:grid;gap:5px;font-size:12.5px;color:var(--ink2);min-width:0}
+.cform .field.full{grid-column:1/-1}
+.cform .req{color:var(--accent)}
+.cform .opt{color:var(--mute);font-weight:400}
+.cform input,.cform textarea{font:inherit;font-size:15px;color:var(--ink);background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:9px 11px;width:100%;min-width:0}
+.cform textarea{min-height:130px;resize:vertical;line-height:1.5}
+.cform input:focus-visible,.cform textarea:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.cform .actions{grid-column:1/-1;display:flex;flex-wrap:wrap;align-items:center;gap:12px 16px}
+.send{font:600 14px var(--f-body);color:#0f1722;background:var(--accent);border:0;border-radius:999px;padding:10px 22px;cursor:pointer}
+.send:hover{filter:brightness(1.06)}
+.send:disabled{opacity:.65;cursor:progress;filter:none}
+.form-msg{margin:0;font-size:13.5px;color:var(--ink2)}
+.form-msg:empty{display:none}
+.form-msg.ok{color:var(--ink);background:color-mix(in srgb,var(--good) 16%,transparent);border-radius:8px;padding:8px 12px}
+.form-msg.err{color:var(--ink);background:color-mix(in srgb,var(--accent) 14%,transparent);border-radius:8px;padding:8px 12px}
+.hp{position:absolute!important;left:-9999px;width:1px;height:1px;overflow:hidden}
+
 @media (max-width:900px){
   .two,.detail{grid-template-columns:1fr}
   .stats{grid-template-columns:repeat(2,1fr)}
@@ -149,6 +168,8 @@ td.need{text-align:center;padding:5px 4px}
   .tiers{grid-template-columns:1fr}
   .filters input{width:100%}
   .count{margin-left:0}
+  .cform{grid-template-columns:1fr}
+  .send{width:100%}
 }
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
@@ -209,11 +230,32 @@ td.need{text-align:center;padding:5px 4px}
   <section class="panel" id="detail" aria-live="polite"></section>
 
   <p class="note">All need levels, budget tiers and prices are Loopwright's estimates, based on each company's industry, size and public web presence (for example, no website found in search). They are not figures from the companies. Confirm them on the audit call. Prices are suggested list prices; set your own before quoting. Leads marked "Website not checked yet" come from online directories; their website need is set to Medium until someone checks their site, and their phone numbers and addresses may be out of date.</p>
+
+  <section class="panel" id="contact" aria-labelledby="contact-h">
+    <div class="panel-head">
+      <h2 id="contact-h">Contact us</h2>
+      <p>Questions about Loopwright or want an audit call? Send a note and we will reply within one business day.</p>
+    </div>
+    <form class="cform" id="contact-form">
+      <label class="field" for="c-name"><span>Name <span class="req" aria-hidden="true">*</span></span><input id="c-name" name="name" type="text" autocomplete="name" required></label>
+      <label class="field" for="c-email"><span>Email <span class="req" aria-hidden="true">*</span></span><input id="c-email" name="email" type="email" autocomplete="email" inputmode="email" required></label>
+      <label class="field" for="c-company"><span>Company <span class="opt">(optional)</span></span><input id="c-company" name="company" type="text" autocomplete="organization"></label>
+      <label class="field" for="c-phone"><span>Phone <span class="opt">(optional)</span></span><input id="c-phone" name="phone" type="tel" autocomplete="tel"></label>
+      <label class="field full" for="c-message"><span>Message <span class="req" aria-hidden="true">*</span></span><textarea id="c-message" name="message" rows="5" autocomplete="off" required></textarea></label>
+      <div class="hp" aria-hidden="true"><label for="c-gotcha">Leave this field empty</label><input id="c-gotcha" name="_gotcha" type="text" tabindex="-1" autocomplete="off"></div>
+      <div class="actions">
+        <button class="send" id="c-send" type="submit">Send message</button>
+        <p class="form-msg" id="c-msg" role="status" aria-live="polite"></p>
+      </div>
+    </form>
+  </section>
 </div>
 
 <div class="tip" id="tip" hidden></div>
 
 <script>
+// Replace YOUR_FORM_ID with your Formspree form ID (the recipient email is configured in Formspree).
+const FORMSPREE_ENDPOINT='https://formspree.io/f/YOUR_FORM_ID';
 const SERVICES=[
   {k:'phone',name:'AI phone receptionist',short:'Phone bot',lo:350,hi:900,setup:750,d:'Answers every call 24/7, books appointments, takes messages, routes urgent calls.'},
   {k:'web',name:'Website build or refresh',short:'Website',lo:75,hi:75,setupLo:2500,setupHi:6000,d:'Fast, mobile site with booking and lead capture. One-time build plus monthly care.'},
@@ -536,6 +578,28 @@ function selectText(b){const v=b.previousElementSibling;const r=document.createR
 document.getElementById('founding').addEventListener('change',e=>{founding=e.target.checked;renderAll();});
 function renderAll(){renderStats();renderChart();renderPrices();renderGrid();renderDetail();}
 renderAll();
+
+/* contact form */
+const cForm=document.getElementById('contact-form'),cSend=document.getElementById('c-send'),cMsg=document.getElementById('c-msg');
+function formMsg(kind,text){cMsg.className='form-msg'+(kind?' '+kind:'');cMsg.textContent=text;}
+cForm.addEventListener('submit',async e=>{
+  e.preventDefault();
+  const fd=new FormData(cForm);
+  const v=k=>String(fd.get(k)||'').trim();
+  const name=v('name'),email=v('email'),message=v('message');
+  if(!cForm.checkValidity()||!name||!email||!message){formMsg('err','Please fill in your name, a valid email and a message.');cForm.reportValidity();return;}
+  if(v('_gotcha')){cForm.reset();formMsg('ok','Thanks! Your message has been sent.');return;}
+  if(FORMSPREE_ENDPOINT.includes('YOUR_FORM_ID')){formMsg('err','Sorry, this form is not connected yet, so your message was not sent. Please try again later.');return;}
+  const label=cSend.textContent;
+  cSend.disabled=true;cSend.textContent='Sending…';formMsg('','');
+  try{
+    const res=await fetch(FORMSPREE_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},
+      body:JSON.stringify({name,email,company:v('company'),phone:v('phone'),message,_subject:'New Loopwright inquiry from '+name,_replyto:email,_gotcha:v('_gotcha')})});
+    if(!res.ok)throw new Error('HTTP '+res.status);
+    cForm.reset();formMsg('ok','Thanks! Your message has been sent. We will be in touch soon.');
+  }catch(_){formMsg('err','Sorry, something went wrong and your message was not sent. Please try again.');}
+  finally{cSend.disabled=false;cSend.textContent=label;}
+});
 </script>
 
 </body></html>
